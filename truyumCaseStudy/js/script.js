@@ -5,7 +5,7 @@ var foodDatas = [
     { id: 4, name: 'French Fries', price: 57, active: 'No', dateOfLaunch: '02/07/2017', category: 'Starter', freeDelivery: 'Yes' },
     { id: 5, name: 'Chocolate Brownies', price: 32, active: 'Yes', dateOfLaunch: '02/11/2022', category: 'Dessert', freeDelivery: 'Yes' }
 ]
-
+var customercart = [];
 var cart = [];
 
 function admin() {
@@ -54,7 +54,10 @@ const displayDataCustomer = function (foodDatas) {
 
         addToCart.href = "menu-item-list-customer-notification.html";
         addToCart.onclick = function () {
+            if(window.localStorage.getItem('customerCart')!=null)
+            cart = JSON.parse(window.localStorage.getItem('customerCart'));
             cart.push(foodData);
+            window.localStorage.setItem('customerCart', JSON.stringify(cart));
         }
         addToCart.textContent = "Add to Cart";
         // addToCart.classList.add('mdl-button','mdl-js-button');
@@ -110,6 +113,67 @@ const displayDataAdmin = function (foodDatas) {
         col7.appendChild(edit);
         row.appendChild(col7);
         tBody.appendChild(row);
+    }
+}
+
+const cartDisplay =  function(cart){
+    let tBody = document.getElementById('cart-table');
+    let isCartEmpty = true;
+    cart.forEach(function(item){
+        if(item!=undefined){
+        let dataRow = tBody.insertRow();
+
+        let nameRowCell = dataRow.insertCell();
+		let freeDeliveryRowCell = dataRow.insertCell();
+        let priceRowCell = dataRow.insertCell();
+		let actionCell = document.createElement('td');
+        let deleteItem = document.createElement('a');
+
+       nameRowCell.innerText = item.name;
+	   
+	   freeDeliveryRowCell.innerText = item.freeDelivery;
+	   
+        priceRowCell.innerText = item.price;
+        
+
+        deleteItem.href = "cart-notification.html";
+        deleteItem.onclick = function () {
+            delete cart[cart.indexOf(item)];
+            window.localStorage.setItem('customerCart', JSON.stringify(cart));
+        }
+        deleteItem.textContent = "Delete";
+
+        actionCell.appendChild(deleteItem);
+        dataRow.appendChild(actionCell);
+        tBody.appendChild(dataRow);
+        isCartEmpty = false;
+    }
+    })
+    if(isCartEmpty){
+        window.location.href = "cart-empty.html";
+    }
+}
+
+window.onload = function (e) {
+    let page = document.getElementById("page").value
+    if(page=='admin'){
+    adminDataDisplay(foodDatas);
+}
+    else if(page=='customer'|| page=="customer-notification")
+    customerDataDisplay(foodDatas);
+    else if(page=='cart'|| page == 'cart-notification'){
+        cart = JSON.parse(window.localStorage.getItem('customerCart'))
+        cartDisplay(cart)
+    }
+}
+
+function getCart(){
+    cart = JSON.parse(window.localStorage.getItem('customerCart'));
+    if(cart!=null){
+        window.location.href = "cart.html"
+    }
+    else{
+        window.location.href = "cart-empty.html"
     }
 }
 
